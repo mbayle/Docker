@@ -1,0 +1,2 @@
+docker-machine env Char
+(puis eval $(docker-machine env Char) ??
