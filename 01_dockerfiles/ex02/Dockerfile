@@ -1,13 +1,19 @@
-FROM ruby:2.5
+FROM ruby:2.3.0
 
-RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs
-RUN mkdir /myapp
+RUN apt-get update && apt-get install -y mysql-client sqlite3 --no-install-recommends
+RUN apt-get install -y rails
 
-WORKDIR /myapp
+ENV RAILS_ENV production
+ENV RACK_ENV production
 
-COPY Gemfile /myapp/Gemfile
-COPY Gemfile.lock /myapp/Gemfile.lock
+RUN mkdir -p /opt/app
+WORKDIR /opt/app
+ONBUILD COPY Gemfile /opt/app/
+ONBUILD COPY Gemfile.lock /opt/app/
 
-RUN bundle install
+ONBUILD RUN bundle install
+ONBUILD RUN rake db:setup
+ONBUILD RUN rake db:migrate
+ONBUILD RUN rake db:seed
 
-COPY . /myapp
+ONBUILD COPY . /opt/app/
